@@ -412,6 +412,7 @@
     overflow:hidden;
     cursor:grab;
     position:relative;
+    touch-action:none;
   }
   .lightbox-stage.grabbing{cursor:grabbing;}
   .lightbox-stage img{
@@ -524,7 +525,7 @@
   <div class="lightbox-zoomlevel" id="zoomLevel">100%</div>
   <div class="lightbox-close" id="lightboxClose" aria-label="Close">&times;</div>
   <div class="lightbox-stage" id="lightboxStage">
-    <img id="lightboxImg" src="" alt="">
+    <img id="lightboxImg" src="" alt="" draggable="false">
   </div>
   <div class="lightbox-caption" id="lightboxCaption"></div>
 </div>
@@ -594,7 +595,7 @@ projects.forEach((p, i) => {
       return `
         <figure class="figure">
           <div class="img-frame" data-src="${fig.src}" data-caption="${fig.caption}">
-            <img src="${fig.src}" alt="${fig.caption}" loading="lazy">
+            <img src="${fig.src}" alt="${fig.caption}" loading="lazy" draggable="false">
             <span class="zoom-hint">Click to zoom</span>
           </div>
           <figcaption>${fig.caption}</figcaption>
@@ -706,20 +707,30 @@ lightboxStage.addEventListener('wheel', (e) => {
   applyTransform();
 }, { passive:false });
 
-lightboxStage.addEventListener('mousedown', (e) => {
+lightboxImg.addEventListener('dragstart', (e) => e.preventDefault());
+
+lightboxStage.addEventListener('pointerdown', (e) => {
   if(zoom <= 1) return;
+  e.preventDefault();
   isDragging = true;
+  lightboxStage.setPointerCapture(e.pointerId);
   lightboxStage.classList.add('grabbing');
   dragStartX = e.clientX; dragStartY = e.clientY;
   panStartX = panX; panStartY = panY;
 });
-window.addEventListener('mousemove', (e) => {
+lightboxStage.addEventListener('pointermove', (e) => {
   if(!isDragging) return;
+  e.preventDefault();
   panX = panStartX + (e.clientX - dragStartX);
   panY = panStartY + (e.clientY - dragStartY);
   applyTransform();
 });
-window.addEventListener('mouseup', () => {
+lightboxStage.addEventListener('pointerup', (e) => {
+  isDragging = false;
+  lightboxStage.classList.remove('grabbing');
+  try { lightboxStage.releasePointerCapture(e.pointerId); } catch(err) {}
+});
+lightboxStage.addEventListener('pointercancel', () => {
   isDragging = false;
   lightboxStage.classList.remove('grabbing');
 });
