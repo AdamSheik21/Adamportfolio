@@ -56,8 +56,10 @@
   }
 
   #traces{
-    position:fixed;
+    position:absolute;
     inset:0;
+    width:100%;
+    height:100%;
     z-index:0;
     pointer-events:none;
     opacity:0.55;
@@ -142,6 +144,13 @@
     line-height:1.6;
   }
   .hero .meta strong{color:var(--ink); font-weight:500;}
+  .hero .meta{margin-bottom:14px;}
+  .hero .focus{
+    font-size:0.95rem;
+    color:var(--cyan);
+    margin:0 0 36px;
+    letter-spacing:0.01em;
+  }
 
   .actions{
     display:flex;
@@ -162,7 +171,7 @@
     text-decoration:none;
     font-size:0.98rem;
     font-weight:500;
-    clip-path:polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+    border-radius:6px;
     transition:background .2s ease, color .2s ease;
   }
   .resume-btn:hover{
@@ -287,7 +296,7 @@
     transition:max-height .35s ease;
   }
   .module.open .module-panel{
-    max-height:900px;
+    max-height:4000px;
   }
 
   .module-panel-inner{
@@ -480,9 +489,8 @@
 
 <div class="grid-bg"></div>
 <div class="spotlight" id="spotlight"></div>
-<svg id="traces" xmlns="http://www.w3.org/2000/svg"></svg>
-
 <section class="hero">
+  <svg id="traces" xmlns="http://www.w3.org/2000/svg"></svg>
   <div class="wrap hero-inner">
     <div class="hero-text">
     <h1>Adam Sheikhdon</h1>
@@ -490,6 +498,7 @@
       <strong>B.E.Sc. Electrical Engineering, Class of 2028</strong><br>
       Western University
     </p>
+    <p class="focus">Seeking a 12&ndash;16 month co-op starting May 2027</p>
     <div class="actions">
       <a class="resume-btn" href="Adam_Sheikhdon_Resume.pdf" target="_blank" rel="noopener" download="Adam_Sheikhdon_Resume.pdf" id="resumeLink">
         View resume
@@ -513,7 +522,6 @@
   <div class="wrap">
     <div class="section-head">
       <h2>Projects</h2>
-      <span id="moduleCount"></span>
     </div>
     <div id="moduleList"></div>
   </div>
@@ -582,8 +590,6 @@ const projects = [
 
 /* ===================== Render modules ===================== */
 const list = document.getElementById('moduleList');
-document.getElementById('moduleCount').textContent =
-  projects.length + (projects.length === 1 ? ' entry' : ' entries');
 
 projects.forEach((p, i) => {
   const mod = document.createElement('div');
@@ -634,6 +640,11 @@ projects.forEach((p, i) => {
     mod.classList.toggle('open', !isOpen);
     head.setAttribute('aria-expanded', String(!isOpen));
   });
+
+  if (i === 0) {
+    mod.classList.add('open');
+    head.setAttribute('aria-expanded', 'true');
+  }
 
   list.appendChild(mod);
 });
@@ -755,7 +766,8 @@ const NS = "http://www.w3.org/2000/svg";
 
 function buildTraces(){
   svg.innerHTML = '';
-  const w = window.innerWidth, h = window.innerHeight;
+  const hero = svg.parentElement;
+  const w = hero.clientWidth, h = hero.clientHeight;
   svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
   svg.setAttribute('width', w);
   svg.setAttribute('height', h);
